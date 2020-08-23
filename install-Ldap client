@@ -1,0 +1,60 @@
+Since there are many articles installing LDAP client, versions are different, and many versions have errors. Today, I will give you the correct steps of how to install LDAP client in Ubantu. I hope it will be useful for you.
+
+由於安裝Ldap Client的文章較多，版本不同，很多版本都有錯誤，今天給大家帶來的是如何在ubantu裡安裝Ldap Client 正確的步驟，希望對大家有用。
+
+
+一、升級系統
+$ sudo apt-get update 
+
+
+
+二、安裝客戶端必要的組件以及配置
+
+$ sudo apt -y install  libnss-ldap libpam-ldap ldap-utils nscd
+原始的： ldapi：///
+修改為： ldap://這裡要填寫你安裝ldap server端的ubantu系統的ip地址，不是填寫本機的IP地址                                                                       （一定要去掉‘i’）
+dc=你的域名,dc=local               （要與你配置ldap server的域名一致）
+version 3
+make root: 直接按 enter
+require login: no
+ldap admin: cn=admin,dc=你的域名,dc=local   （要與你配置ldap server的域名一致）
+OK
+
+三、修改nsswitch.conf 配置文件
+
+$ sudo vim /etc/nsswitch.conf 
+找到並在下面三行後面加上ldap
+
+passwd:         compat systemd ldap
+group:          compat systemd ldap
+shadow:         compat         ldap
+
+四、編輯common-password文件
+$ sudo vim /etc/pam.d/common-password
+找到並刪除"use_authtok" 字段
+
+五、編輯common-session文件
+$ sudo vim /etc/pam.d/common-session
+
+在倒數第二行添加複製下面字段
+session optional   pam_mkhomedir.so skel=/etc/skel umask=077
+
+
+六、啟動相關服務
+$sudo service nscd restart
+$sudo service nscd status
+
+進入網頁查看
+http://你的ip地址/phpldapadmin 
+
+使用下面的命令查看用戶
+$ getent passwd
+
+Congratulations on the successful installation of the LDAP Cilent！
+恭喜各位成功安裝了ldap cilent端！
+
+
+Please share if it helps，thanks！
+如果對大家有幫助請分享
+
+
